@@ -1,0 +1,35 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "files.exclude": {
+        "out": false // set this to true to hide the "out" folder with the compiled JS files
+    },
+    "search.exclude": {
+        "out": true // set this to false to include "out" folder in search results
+    },
+    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+    "typescript.tsc.autoDetect": "off",
+    "python.pythonPath": "/usr/local/opt/python@2/bin/python2.7",
+    "python-envs.pythonProjects": [
+        {
+            "path": "",
+            "envManager": "ms-python.python:system",
+            "packageManager": "ms-python.python:pip"
+        }
+    ],
+    "mxscript.serverSettings.hostname": "maximoacc.ad.sfppn.com",
+    "mxscript.serverSettings.port": 443,
+    "mxscript.authentication.username": "trinmax@sfppn.com",
+    "mxscript.authentication.password": "M@xnTri*$",
+    "mxscript.authentication.apikey": "",
+    "mxscript.authentication.authenticationType": "ldap",
+    "mxscript.serverSettings.objectStructure": "MXSCRIPT",
+    "mxscript.serverSettings.httpProtocol": "https",
+    "mxscript.scriptSettings.createPythonFileForJythonScripts": true,
+    "mxscript.scriptSettings.logLevel": "DEBUG",
+    "mxscript.scriptSettings.ignoresslerrors": true,
+    "mxscript.serverSettings.activeEnvironmentName": "sfppn_acc",
+    "mxscript.appxml.formatOnDownloadAndCompare": true,
+    "mxscript.scriptSettings.sslcertificate": "",
+    "mxscript.appxml.objectStructure": "MXL_APPS",
+    
+}

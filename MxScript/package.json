@@ -1,0 +1,366 @@
+{
+  "name": "mxscript",
+  "displayName": "MxScript",
+  "description": "Script / App Xml Manager for IBM Maximo",
+  "version": "1.4.4",
+  "engines": {
+    "vscode": "^1.44.0"
+  },
+  "publisher": "Rana",
+  "author": {
+    "name": "Rana Ahmed Naazir",
+    "email": "ahmed.naazer@gmail.com",
+    "url": "https://github.com/ahmednrana"
+  },
+  "keywords": [
+    "maximo",
+    "ibm",
+    "automation",
+    "script",
+    "xml"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmednrana/mxscript.git"
+  },
+  "icon": "images/icon.png",
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run build:bundle-local",
+    "compile": "npm run build",
+    "watch:webviews": "node ./scripts/build-webview.js --watch",
+    "watch:all": "npm-run-all -p watch:webviews watch:ts",
+    "watch:ts": "tsc -watch -p ./",
+    "watch": "npm run watch:all",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "build": "npm run build:webviews && tsc -p ./",
+    "clean:webviews": "npx rimraf ./media",
+    "build:webviews": "npm run clean:webviews && node ./scripts/build-webview.js",
+    "package": "vsce package",
+    "publish": "vsce publish",
+    "build:bundle-local": "echo \"[MXSCRIPT-BUILD] Starting build with local library...\" && cd ../../api/maximo-api-client && echo \"[MXSCRIPT-BUILD] Building maximo-api-client...\" && npm run build && echo \"[MXSCRIPT-BUILD] Cleaning up existing tarball in mxscript dir (if any)...\" && npx rimraf ../../vscode/mxscript/maximo-api-client-*.tgz && echo \"[MXSCRIPT-BUILD] Packing maximo-api-client to mxscript directory...\" && npm pack --pack-destination ../../vscode/mxscript/ && cd ../../vscode/mxscript && echo \"[MXSCRIPT-BUILD] Unlinking maximo-api-client from mxscript (if linked)...\" && (npm unlink --no-save maximo-api-client || true) && echo \"[MXSCRIPT-BUILD] Temporarily installing maximo-api-client from tarball (using PowerShell)...\" && powershell -NoProfile -NonInteractive -Command \"$tarball = Get-ChildItem -Path . -Filter 'maximo-api-client-*.tgz' | Select-Object -ExpandProperty Name -First 1; if ($tarball) { Write-Host \\\"[MXSCRIPT-BUILD] PowerShell: Found tarball: $($tarball). Installing...\\\"; npm install --no-save \\\"./$($tarball)\\\" } else { Write-Error 'ERROR: Maximo API client tarball not found in current directory.' ; exit 1 }\" && echo \"[MXSCRIPT-BUILD] Local build process complete.\"",
+    "package:bundle-local": "npm run build:bundle-local && echo \"[MXSCRIPT-BUILD] Packaging mxscript extension (VSIX)...\" && vsce package && echo \"[MXSCRIPT-BUILD] Cleaning up...\" && npm run clean:bundle-local",
+    "clean:bundle-local": "echo \"[MXSCRIPT-BUILD] Cleaning up: Uninstalling tarball version of maximo-api-client...\" && npm uninstall --no-save maximo-api-client && echo \"[MXSCRIPT-BUILD] Cleaning up: Deleting newly created local tarball...\" && npx rimraf ./maximo-api-client-*.tgz && echo \"[MXSCRIPT-BUILD] Restoring: Re-linking maximo-api-client for development...\" && npm link maximo-api-client && echo \"[MXSCRIPT-BUILD] Cleanup complete. Development environment restored.\""
+  },
+  "activationEvents": [
+    "onCommand:mxscript.upload",
+    "onCommand:mxscript.update",
+    "onCommand:mxscript.compare",
+    "onCommand:mxscript.downloadall",
+    "onCommand:mxscript.downloadFromMaximo",
+    "onCommand:mxscript.refreshCache",
+    "onCommand:mxscript.delete",
+    "onCommand:mxscript.manageEnvironments",
+    "onView:maximoEnvironments",
+    "onCommand:mxscript.downloadallappxml",
+    "onCommand:mxscript.fetchLogs",
+    "onCommand:maximoEnvironments.compareWithEnvironment"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "mxscript.upload",
+        "title": "Upload to Server",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.update",
+        "title": "Download (Update) from Server",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.compare",
+        "title": "Compare with current Environment",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.downloadall",
+        "title": "Download Script(s) from Server",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.downloadallappxml",
+        "title": "Download Application xml(s) from Server",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.downloadallcondition",
+        "title": "Download Condition(s) from Server",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.downloadFromMaximo",
+        "title": "Download from Server",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.refreshCache",
+        "title": "Refresh Maximo Cache",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.fetchLogs",
+        "title": "Fetch Logs from Manage",
+        "category": "Maximo [mxscript]",
+        "icon": "$(output)"
+      },
+      {
+        "command": "mxscript.delete",
+        "title": "Delete this file from Server",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "mxscript.manageEnvironments",
+        "title": "Manage Environments",
+        "category": "Maximo [mxscript]",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "maximoEnvironments.refreshEnvironments",
+        "title": "Refresh Environments",
+        "icon": "$(refresh)",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "maximoEnvironments.addEnvironment",
+        "title": "Add Environment",
+        "icon": "$(add)",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "maximoEnvironments.editEnvironment",
+        "title": "Edit Environment",
+        "icon": "$(edit)",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "maximoEnvironments.deleteEnvironment",
+        "title": "Delete Environment",
+        "icon": "$(trash)",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "maximoEnvironments.setActiveEnvironment",
+        "title": "Set as Active Environment",
+        "icon": "$(check)",
+        "category": "Maximo [mxscript]"
+      },
+      {
+        "command": "maximoEnvironments.compareWithEnvironment",
+        "title": "Compare with other Environment",
+        "icon": "$(compare-changes)",
+        "category": "Maximo [mxscript]"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Maximo configuration",
+      "properties": {
+        "mxscript.serverSettings.hostname": {
+          "type": "string",
+          "description": "Hostname / IP of Maximo (e.g. 10.10.12.12 or www.xyz.com)"
+        },
+        "mxscript.serverSettings.port": {
+          "type": "number",
+          "description": "Maximo port"
+        },
+        "mxscript.authentication.username": {
+          "type": "string",
+          "default": "maxadmin",
+          "description": "Username for Maximo Authentication"
+        },
+        "mxscript.authentication.password": {
+          "type": "string",
+          "default": "maxadmin",
+          "description": "Password for Maximo Authentication"
+        },
+        "mxscript.authentication.apikey": {
+          "type": "string",
+          "description": "API key Maximo Authentication"
+        },
+        "mxscript.authentication.authenticationType": {
+          "type": "string",
+          "enum": [
+            "internal",
+            "ldap",
+            "apikey"
+          ],
+          "enumDescriptions": [
+            "Maximo's internal authentication",
+            "LDAP based authentication using applciation server",
+            "API key"
+          ],
+          "default": "internal",
+          "description": "Type of Authentication"
+        },
+        "mxscript.serverSettings.objectStructure": {
+          "type": "string",
+          "default": "MXSCRIPT",
+          "description": "Object Structure to be used scripts uploading / downloading"
+        },
+        "mxscript.appxml.objectStructure": {
+          "type": "string",
+          "default": "MXL_APPS",
+          "description": "Object Structure to be used for App XML uploading / downloading"
+        },
+        "mxscript.condition.objectStructure": {
+          "type": "string",
+          "default": "MXL_CONDITION",
+          "description": "Object Structure to be used for Condition uploading / downloading"
+        },
+        "mxscript.serverSettings.httpProtocol": {
+          "type": "string",
+          "enum": [
+            "http",
+            "https"
+          ],
+          "enumDescriptions": [
+            "Http",
+            "Https Secure Protocol"
+          ],
+          "default": "http",
+          "description": "Http protocol (http or https)"
+        },
+        "mxscript.scriptSettings.createPythonFileForJythonScripts": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Create Jython script in Maximo even if the file in editor is .py"
+        },
+        "mxscript.scriptSettings.logLevel": {
+          "enum": [
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "enumDescriptions": [
+            "Logs messages that are useful in debugging",
+            "Logs informational messages",
+            "Logs messages indicating harmful situations in functionality",
+            "Logs message indicating errors in application functionality",
+            "Logs very severe errors messages"
+          ],
+          "type": "string",
+          "description": "The log level tp set with scripts when creating / updating them"
+        },
+        "mxscript.scriptSettings.ignoresslerrors": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Ignore ssl errors"
+        },
+        "mxscript.scriptSettings.sslcertificate": {
+          "type": "string",
+          "markdownDescription": "Use custom SSL certificate"
+        },
+        "mxscript.logging.level": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "none"
+          ],
+          "default": "info",
+          "description": "Controls the verbosity of logs in the output console"
+        },
+        "mxscript.serverSettings.activeEnvironmentName": {
+          "type": "string",
+          "scope": "window",
+          "default": "",
+          "description": "The friendly name of the currently active Maximo environment profile"
+        },
+        "mxscript.appxml.formatOnDownloadAndCompare": {
+          "type": "boolean",
+          "scope": "window",
+          "default": true,
+          "description": "Whether to format XML on download and compare"
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "maximoEnvironments",
+          "name": "Maximo Environments",
+          "icon": "$(server-environment)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "maximoEnvironments.refreshEnvironments",
+          "when": "view == maximoEnvironments",
+          "group": "navigation"
+        },
+        {
+          "command": "maximoEnvironments.addEnvironment",
+          "when": "view == maximoEnvironments",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "maximoEnvironments.editEnvironment",
+          "when": "view == maximoEnvironments",
+          "group": "inline"
+        },
+        {
+          "command": "maximoEnvironments.deleteEnvironment",
+          "when": "view == maximoEnvironments",
+          "group": "inline"
+        },
+        {
+          "command": "maximoEnvironments.setActiveEnvironment",
+          "when": "view == maximoEnvironments && viewItem == environment",
+          "group": "inline"
+        },
+        {
+          "command": "mxscript.fetchLogs",
+          "when": "view == maximoEnvironments && viewItem == environment",
+          "group": "inline@1"
+        },
+        {
+          "command": "mxscript.fetchLogs",
+          "when": "view == maximoEnvironments && viewItem == activeEnvironment",
+          "group": "inline@1"
+        },
+        {
+          "command": "maximoEnvironments.compareWithEnvironment",
+          "when": "view == maximoEnvironments",
+          "group": "inline@2"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^20.4.1",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/vscode": "^1.44.0",
+    "esbuild": "^0.25.9",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
+    "tslint": "^5.12.1",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@types/node-fetch": "^2.5.5",
+    "@vscode-elements/elements": "^2.3.0",
+    "@vscode-elements/react-elements": "^2.3.1",
+    "@vscode/codicons": "^0.0.40",
+    "node-fetch": "^2.6.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.1",
+    "xml-formatter": "^3.6.2",
+    "xml2js": "^0.6.2"
+  }
+}

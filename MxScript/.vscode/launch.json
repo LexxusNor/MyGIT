@@ -1,0 +1,34 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Run Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+			"preLaunchTask": "npm: watch (webview)",
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"skipFiles": [
+				"${workspaceFolder}/node_modules/**/*.js",
+				"**/node_modules/**/*.js",
+				"<node_internals>/**/*.js"
+			]
+		},
+		{
+			"name": "Extension Tests",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/out/test"
+			],
+			"outFiles": ["${workspaceFolder}/out/test/**/*.js"],
+			"preLaunchTask": "npm: watch (webview)",
+			"skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
+		}
+	]
+}
